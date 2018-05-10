@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <meta name="keywords" content="关键词">
+        <meta name="description" content="描述">
+        <meta name="author" content="潭州教育-阿飞老师">
+        <style>
+            body,dl,dd,p,h1,h2,h3,h4,h5,h6{margin:0;}
+            ol,ul,li{margin:0;padding:0;list-style:none;}
+            img{border:none;}
+        #box{
+            user-select: none;
+            position: absolute;
+            top: 300px;
+            left: 300px;
+            width: 100px;
+            height: 100px;
+            background-color:deeppink;
+        }
+        #wrap{
+            user-select: none;
+            position: absolute;
+            top: 300px;
+            left: 800px;
+            width: 150px;
+            height: 150px;
+            background-color:blueviolet;
+        }
+        </style>
+        <style>
+            .boxResize div{
+                position: absolute;
+                width: 5px;
+                height: 5px;
+            }
+            div.T{
+                cursor: n-resize;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+            div.B{
+                cursor: s-resize;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+            }
+            div.L{
+                cursor: w-resize;
+                top: 0;
+                left: 0;
+                height: 100%;
+            }
+            div.R{
+                cursor: e-resize;
+                top: 0;
+                right: 0;
+                height: 100%;
+            }
+            div.LT{
+                cursor: nw-resize;
+                top: 0;
+                left: 0;
+            }
+            div.RT{
+                cursor: ne-resize;
+                top: 0;
+                right: 0;
+            }
+            div.RB{
+                cursor: se-resize;
+                bottom: 0;
+                right: 0;
+            }
+            div.LB{
+                cursor: sw-resize;
+                bottom: 0;
+                left: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="wrap"></div>
+        <div id="box"></div>
+        <script>
+            boxResize(document.getElementById("box"));
+            boxResize(document.getElementById("wrap"));
+            //封装一个所有盒子都适用的方法
+            function boxResize(obj){
+                var nameArr=["T","B","L","R","LT","RT","RB","LB"];
+                var divArr=[
+                    {className:"T",
+                        eventFn:[0,1]
+                    },
+                    {className:"B",
+                        eventFn:[0,-1]
+                    },
+                    {className:"L",
+                        eventFn:[1,0]
+                    },
+                    {className:"R",
+                        eventFn:[-1,0]
+                    },
+                    {className:"LT",
+                        eventFn:[1,1]
+                    },
+                    {className:"RT",
+                        eventFn:[-1,1]
+                    },
+                    {className:"RB",
+                        eventFn:[-1,-1]
+                    },
+                    {className:"LB",
+                        eventFn:[1,-1]
+                    }
+                ];
+
+                var Wrap = document.createElement("div");
+                Wrap.className = "boxResize";
+                for (var i = 0; i < 8; i++) {
+                    var div = document.createElement("div");
+                    div.index = i;
+                    div.className = divArr[i].className;
+                    div.onmousedown = function (e) {
+                        e = e || window.event;
+                        fn(e , divArr[this.index].eventFn);
+                    };
+                    Wrap.appendChild(div);
+                }
+
+                obj.appendChild(Wrap);
+                document.onmouseup = function (ev) {
+                    this.onmousemove = null;
+                };
+                function fn(e , a) {
+                    var x = e.clientX;
+                    var y = e.clientY;
+
+                    var cssObj = obj.currentStyle || getComputedStyle(obj);
+                    var h = parseFloat(cssObj.height);
+                    var w = parseFloat(cssObj.width);
+                    var l = obj.offsetLeft;
+                    var t = obj.offsetTop;
+                    document.onmousemove = function (e) {
+                        e = e || window.event;
+                        var xN = e.clientX;
+                        var yN = e.clientY;
+                        var y_ = yN-y;
+                        var x_ = xN-x;
+
+                        var hN = h - y_*a[1];
+                        var wN = w - x_*a[0];
+                        var tN = t + y_*a[1];
+                        var lN = l + x_*a[0];
+
+                        if ( hN <= 10 ){
+                            hN = 10;
+                            tN = t+h-10;
+                        }
+                        if ( wN <= 10 ){
+                            wN = 10;
+                            lN = l+w-10;
+                        }
+
+                        obj.style.height = hN + 'px';
+                        obj.style.width = wN + 'px';
+                        obj.style.left = (a[0]===1?lN:l) + 'px';
+                        obj.style.top = (a[1]===1?tN:t) + 'px';
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
